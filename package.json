@@ -1,0 +1,36 @@
+{
+  "name": "vetoken-finance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "fork-mainnet": "ganache-cli -l 8000000  -f https://eth-mainnet.alchemyapi.io/v2/d8JbLuMr-FcW3yYlDPFZASEHuyC0SQxP --unlock 0x40907540d8a6c65c637785e8f8b742ae6b0b9968 0x9d074E37d408542FD38be78848e8814AFB38db17 0x1fe5F397e38fFe61E663d96821F41bCF83ed7959",
+    "deploy-local-curve": "truffle migrate --network ganachecli -f 2 --to 2 --skip-dry-run --reset",
+    "deploy-local-pickle": "truffle migrate --network ganachecli -f 3 --to 3 --skip-dry-run --reset",
+    "test-deposit-pickle": "truffle test --network ganachecli",
+    "lint-fix": "npm run lint-sol-fix && npm run lint-js-fix && npm run lint-json-fix",
+    "lint-json-fix": "prettier --write \"./[a-zA-Z0-9.]+(?!-lock).json\"",
+    "lint-js-fix": "prettier --write \"./**/*.js\"",
+    "lint-sol-fix": "prettier --write \"contracts/**/*.sol\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.4.0",
+    "@truffle/hdwallet-provider": "^1.4.1",
+    "web3": "^1.3.6"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.12",
+    "bignumber.js": "^9.0.1",
+    "prettier": "^2.3.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.17",
+    "solhint": "^3.3.6",
+    "solhint-plugin-prettier": "0.0.5",
+    "truffle-plugin-verify": "^0.5.11"
+  }
+}
