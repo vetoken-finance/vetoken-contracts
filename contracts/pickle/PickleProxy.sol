@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 
 import "../Interfaces/Interfaces.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PickleVoterProxy {
     using SafeERC20 for IERC20;
@@ -23,7 +23,7 @@ contract PickleVoterProxy {
 
     mapping(address => bool) private protectedTokens;
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
     }
 

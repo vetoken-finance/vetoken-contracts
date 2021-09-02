@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
@@ -16,7 +16,7 @@ library MathUtil {
 contract ReentrancyGuard {
     uint256 private _guardCounter;
 
-    constructor() internal {
+    constructor() {
         _guardCounter = 1;
     }
 

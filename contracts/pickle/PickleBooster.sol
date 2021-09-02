@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 
 import "../Interfaces/Interfaces.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PickleBooster {
     using SafeERC20 for IERC20;
@@ -57,17 +57,32 @@ contract PickleBooster {
 
     event Deposited(address indexed user, uint256 indexed poolid, uint256 amount);
     event Withdrawn(address indexed user, uint256 indexed poolid, uint256 amount);
+    event OwnerUpdated(address indexed owner);
+    event FeeManagerUpdated(address indexed feeM);
+    event PoolManagerUpdated(address indexed poolM);
+    event FactoriesUpdated(address indexed rfactory, address indexed tfactory);
+    event ArbitratorUpdated(address indexed arb);
+    event VoteDelegateUpdated(address indexed voteDelegate);
+    event RewardContractsUpdated(address indexed rewards, address indexed stakerRewards);
+    event FeesUpdated(uint256 lockFees, uint256 stakerFees, uint256 callerFees, uint256 platform);
+    event TreasuryUpdated(address indexed treasury);
+    event PicklePoolAdded(
+        address indexed lptoken,
+        address indexed gauge,
+        address indexed token,
+        address rewardPool
+    );
+    event PoolShuttedDown(uint256 indexed pid);
+    event SystemShuttedDown();
+    event Voted(uint256 indexed voteId, address indexed votingAddress, bool support);
 
-    constructor(address _staker, address _minter) public {
+    constructor(address _staker, address _minter) {
         isShutdown = false;
         staker = _staker;
         owner = msg.sender;
         voteDelegate = msg.sender;
         feeManager = msg.sender;
         poolManager = msg.sender;
-        feeDistro = address(0); //address(0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc);
-        feeToken = address(0); //address(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490);
-        treasury = address(0);
         minter = _minter;
     }
 
@@ -76,16 +91,19 @@ contract PickleBooster {
     function setOwner(address _owner) external {
         require(msg.sender == owner, "!auth");
         owner = _owner;
+        emit OwnerUpdated(_owner);
     }
 
     function setFeeManager(address _feeM) external {
         require(msg.sender == feeManager, "!auth");
         feeManager = _feeM;
+        emit FeeManagerUpdated(_feeM);
     }
 
     function setPoolManager(address _poolM) external {
         require(msg.sender == poolManager, "!auth");
         poolManager = _poolM;
+        emit PoolManagerUpdated(_poolM);
     }
 
     function setFactories(address _rfactory, address _tfactory) external {
@@ -97,17 +115,20 @@ contract PickleBooster {
         if (rewardFactory == address(0)) {
             rewardFactory = _rfactory;
             tokenFactory = _tfactory;
+            emit FactoriesUpdated(_rfactory, _tfactory);
         }
     }
 
     function setArbitrator(address _arb) external {
         require(msg.sender == owner, "!auth");
         rewardArbitrator = _arb;
+        emit ArbitratorUpdated(_arb);
     }
 
     function setVoteDelegate(address _voteDelegate) external {
         require(msg.sender == voteDelegate, "!auth");
         voteDelegate = _voteDelegate;
+        emit VoteDelegateUpdated(_voteDelegate);
     }
 
     function setRewardContracts(address _rewards, address _stakerRewards) external {
@@ -118,6 +139,7 @@ contract PickleBooster {
         if (lockRewards == address(0)) {
             lockRewards = _rewards;
             stakerRewards = _stakerRewards;
+            emit RewardContractsUpdated(_rewards, _stakerRewards);
         }
     }
 
@@ -163,12 +185,14 @@ contract PickleBooster {
             stakerIncentive = _stakerFees;
             earmarkIncentive = _callerFees;
             platformFee = _platform;
+            emit FeesUpdated(_lockFees, _stakerFees, _callerFees, _platform);
         }
     }
 
     function setTreasury(address _treasury) external {
         require(msg.sender == feeManager, "!auth");
         treasury = _treasury;
+        emit TreasuryUpdated(_treasury);
     }
 
     /// END SETTER SECTION ///
@@ -201,6 +225,7 @@ contract PickleBooster {
             })
         );
         gaugeMap[_gauge] = true;
+        emit PicklePoolAdded(_lptoken, _gauge, token, newRewardPool);
 
         return true;
     }
@@ -215,6 +240,8 @@ contract PickleBooster {
 
         pool.shutdown = true;
         gaugeMap[pool.gauge] = false;
+
+        emit PoolShuttedDown(_pid);
         return true;
     }
 
@@ -237,6 +264,7 @@ contract PickleBooster {
                 pool.shutdown = true;
             } catch {}
         }
+        emit SystemShuttedDown();
     }
 
     //deposit lp tokens and stake
@@ -263,7 +291,6 @@ contract PickleBooster {
             //mint here and send to rewards on user behalf
             ITokenMinter(token).mint(address(this), _amount);
             address rewardContract = pool.pickleRewards;
-            IERC20(token).safeApprove(rewardContract, 0);
             IERC20(token).safeApprove(rewardContract, _amount);
             IRewards(rewardContract).stakeFor(msg.sender, _amount);
         } else {
@@ -347,6 +374,7 @@ contract PickleBooster {
         require(_votingAddress == voteOwnership || _votingAddress == voteParameter, "!voteAddr");
 
         IStaker(staker).vote(_voteId, _votingAddress, _support);
+        emit Voted(_voteId, _votingAddress, _support);
         return true;
     }
 

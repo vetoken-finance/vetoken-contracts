@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 /**
  *Submitted for verification at Etherscan.io on 2020-07-17
  */
@@ -40,10 +40,10 @@ pragma solidity 0.6.12;
 */
 
 import "../Interfaces/Interfaces.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PickleVirtualBalanceWrapper {
     using SafeMath for uint256;
@@ -61,6 +61,7 @@ contract PickleVirtualBalanceWrapper {
 }
 
 contract PickleVirtualBalanceRewardPool is PickleVirtualBalanceWrapper {
+    using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     IERC20 public rewardToken;
@@ -88,7 +89,7 @@ contract PickleVirtualBalanceRewardPool is PickleVirtualBalanceWrapper {
         address deposit_,
         address reward_,
         address op_
-    ) public {
+    ) {
         deposits = IDeposit(deposit_);
         rewardToken = IERC20(reward_);
         operator = op_;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 /**
  *Submitted for verification at Etherscan.io on 2020-07-17
  */
@@ -40,10 +40,10 @@ pragma solidity 0.6.12;
 */
 
 import "../Interfaces/Interfaces.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PickleBaseRewardPool {
     using SafeMath for uint256;
@@ -54,6 +54,7 @@ contract PickleBaseRewardPool {
     uint256 public constant duration = 7 days;
     uint256 constant BLOCKS_PER_DAY = 6450;
     uint256 constant BLOCKS_PER_YEAR = BLOCKS_PER_DAY * 365;
+    uint256 constant EXTRA_REWARD_POOLS = 3;
 
     address public operator;
     address public rewardManager;
@@ -78,6 +79,15 @@ contract PickleBaseRewardPool {
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+    event ExtraRewardAdded(address indexed reward);
+    event ExtraRewardCleared();
+    event RewardUpdated(
+        address indexed user,
+        uint256 reward,
+        uint256 rewardPerTokenStored,
+        uint256 lastUpdateTime
+    );
+    event Donated(uint256 queuedRewards);
 
     constructor(
         uint256 pid_,
@@ -85,7 +95,7 @@ contract PickleBaseRewardPool {
         address rewardToken_,
         address operator_,
         address rewardManager_
-    ) public {
+    ) {
         pid = pid_;
         stakingToken = IERC20(stakingToken_);
         rewardToken = IERC20(rewardToken_);
@@ -108,14 +118,17 @@ contract PickleBaseRewardPool {
     function addExtraReward(address _reward) external returns (bool) {
         require(msg.sender == rewardManager, "!authorized");
         require(_reward != address(0), "!reward setting");
+        require(extraRewards.length < EXTRA_REWARD_POOLS, "!extra reward pools exceed");
 
         extraRewards.push(_reward);
+        emit ExtraRewardAdded(_reward);
         return true;
     }
 
     function clearExtraRewards() external {
         require(msg.sender == rewardManager, "!authorized");
         delete extraRewards;
+        emit ExtraRewardCleared();
     }
 
     modifier updateReward(address account) {
@@ -125,6 +138,7 @@ contract PickleBaseRewardPool {
             rewards[account] = earned(account);
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
+        emit RewardUpdated(account, rewards[account], rewardPerTokenStored, lastUpdateTime);
         _;
     }
 
@@ -277,6 +291,7 @@ contract PickleBaseRewardPool {
     function donate(uint256 _amount) external returns (bool) {
         IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), _amount);
         queuedRewards = queuedRewards.add(_amount);
+        emit Donated(queuedRewards);
     }
 
     function queueNewRewards(uint256 _rewards) external returns (bool) {

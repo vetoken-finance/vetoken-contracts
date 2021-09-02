@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 
 import "../Interfaces/Interfaces.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PickleDepositor {
     using SafeERC20 for IERC20;
@@ -26,7 +26,13 @@ contract PickleDepositor {
     uint256 public incentivePickle = 0;
     uint256 public unlockTime;
 
-    constructor(address _staker, address _minter) public {
+    event FeeManagerUpdated(address indexed feeManager);
+    event FeesUpdated(uint256 lockIncentive);
+    event InitialLockCreated(uint256 pickleBalanceStaker, uint256 unlockInWeeks);
+    event LockUpdated(uint256 pickleBalanceStaker, uint256 unlockInWeeks);
+    event Deposited(address indexed user, uint256 amount, bool lock);
+
+    constructor(address _staker, address _minter) {
         staker = _staker;
         minter = _minter;
         feeManager = msg.sender;
@@ -35,6 +41,7 @@ contract PickleDepositor {
     function setFeeManager(address _feeManager) external {
         require(msg.sender == feeManager, "!auth");
         feeManager = _feeManager;
+        emit FeeManagerUpdated(_feeManager);
     }
 
     function setFees(uint256 _lockIncentive) external {
@@ -42,6 +49,7 @@ contract PickleDepositor {
 
         if (_lockIncentive >= 0 && _lockIncentive <= 30) {
             lockIncentive = _lockIncentive;
+            emit FeesUpdated(_lockIncentive);
         }
     }
 
@@ -59,6 +67,7 @@ contract PickleDepositor {
             uint256 pickleBalanceStaker = IERC20(pickle).balanceOf(staker);
             IStaker(staker).createLock(pickleBalanceStaker, unlockAt);
             unlockTime = unlockInWeeks;
+            emit InitialLockCreated(pickleBalanceStaker, unlockInWeeks);
         }
     }
 
@@ -86,6 +95,7 @@ contract PickleDepositor {
             IStaker(staker).increaseTime(unlockAt);
             unlockTime = unlockInWeeks;
         }
+        emit LockUpdated(pickleBalanceStaker, unlockTime);
     }
 
     function lockPickle() external {
@@ -137,10 +147,11 @@ contract PickleDepositor {
             //mint here
             ITokenMinter(minter).mint(address(this), _amount);
             //stake for msg.sender
-            IERC20(minter).safeApprove(_stakeAddress, 0);
             IERC20(minter).safeApprove(_stakeAddress, _amount);
             IRewards(_stakeAddress).stakeFor(msg.sender, _amount);
         }
+
+        emit Deposited(msg.sender, _amount, _lock);
     }
 
     function deposit(uint256 _amount, bool _lock) external {

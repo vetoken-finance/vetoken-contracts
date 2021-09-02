@@ -4,7 +4,7 @@
 
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.12;
+pragma solidity 0.8.7;
 
 interface SmartWalletChecker {
     function check(address) external view returns (bool);
@@ -29,7 +29,7 @@ contract SmartWalletWhitelist {
     event ApproveWallet(address);
     event RevokeWallet(address);
 
-    constructor(address _dao) public {
+    constructor(address _dao) {
         dao = _dao;
         wallets[0xF147b8125d2ef93FB6965Db97D6746952a133934] = true;
         emit ApproveWallet(0xF147b8125d2ef93FB6965Db97D6746952a133934);

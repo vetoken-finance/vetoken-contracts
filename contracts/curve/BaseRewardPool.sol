@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.7;
 /**
  *Submitted for verification at Etherscan.io on 2020-07-17
  */
@@ -40,10 +40,10 @@ pragma solidity 0.6.12;
 */
 
 import "../Interfaces/Interfaces.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract BaseRewardPool {
     using SafeMath for uint256;
@@ -85,7 +85,7 @@ contract BaseRewardPool {
         address rewardToken_,
         address operator_,
         address rewardManager_
-    ) public {
+    ) {
         pid = pid_;
         stakingToken = IERC20(stakingToken_);
         rewardToken = IERC20(rewardToken_);
