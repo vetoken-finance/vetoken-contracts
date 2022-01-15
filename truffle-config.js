@@ -52,7 +52,7 @@ module.exports = {
     // },
     ganachecli: {
       host: "127.0.0.1",
-      port: 8545,
+      port: 9594,
       network_id: "1",
       gas: 8000000,
       gasPrice: 10000000000,

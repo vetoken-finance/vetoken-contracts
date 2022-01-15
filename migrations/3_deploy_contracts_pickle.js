@@ -18,48 +18,50 @@ const IExchange = artifacts.require("IExchange");
 const IERC20 = artifacts.require("IERC20");
 
 module.exports = async function (deployer, network, accounts) {
-  let smartWalletWhitelistAddress = "0xca719728Ef172d0961768581fdF35CB116e0B7a4";
+  let smartWalletWhitelistAddress = "0x2ff4f44f86f49d45a1c3626bab9d222e84e9e78f";
   let pickle = await IERC20.at("0x429881672B9AE42b8EbA0E26cD9C73711b891Ca5");
-  let checkerAdmin = "0x40907540d8a6c65c637785e8f8b742ae6b0b9968";
-  let dillAdmin = "0x9d074E37d408542FD38be78848e8814AFB38db17";
+  //let checkerAdmin = "0x40907540d8a6c65c637785e8f8b742ae6b0b9968";
+  //let dillAdmin = "0x9d074E37d408542FD38be78848e8814AFB38db17";
   let dillAddress = "0xbBCf169eE191A1Ba7371F30A1C344bFC498b29Cf";
   let weth = await IERC20.at("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
   let exchange = await IExchange.at("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
+  let voterProxyAddress = "0x05A7Ebd3b20A2b0742FdFDe8BA79F6D22Ea9C351";
+  let voterProxyOwner = "0x30a8609c9d3f4a9ee8ebd556388c6d8479af77d1";
   let admin = accounts[0];
 
   // send ether to the checker admin
   let forceSend = await ForceSend.new();
-  await forceSend.go(checkerAdmin, { value: ether("10"), from: admin });
-  let checkerBalance = await balance.current(checkerAdmin);
-  console.log("Checker Admin balance " + checkerBalance);
+  await forceSend.go(voterProxyOwner, { value: ether("10"), from: admin });
+  let voterProxyOwnerBalance = await balance.current(voterProxyOwner);
+  console.log("voterProxyOwner balance " + voterProxyOwnerBalance);
 
   // send ether to the dill admin
-  forceSend = await ForceSend.new();
-  await forceSend.go(dillAdmin, { value: ether("10"), from: admin });
-  let dillBalance = await balance.current(dillAdmin);
-  console.log("Dill Admin balance " + dillBalance);
+  //forceSend = await ForceSend.new();
+  // await forceSend.go(dillAdmin, { value: ether("10"), from: admin });
+  // let dillBalance = await balance.current(dillAdmin);
+  // console.log("Dill Admin balance " + dillBalance);
 
   // start deployment
   console.log("deploying from: " + admin);
 
   // point checker to dill
-  const dillContract = new web3.eth.Contract(dillABI, dillAddress);
-  console.log("checker is ", await dillContract.methods.smart_wallet_checker().call());
-  await dillContract.methods.commit_smart_wallet_checker(smartWalletWhitelistAddress).send({ from: dillAdmin });
-  await dillContract.methods.apply_smart_wallet_checker().send({ from: dillAdmin });
-  console.log("checker is ", await dillContract.methods.smart_wallet_checker().call());
+  // const dillContract = new web3.eth.Contract(dillABI, dillAddress);
+  // console.log("checker is ", await dillContract.methods.smart_wallet_checker().call());
+  // await dillContract.methods.commit_smart_wallet_checker(smartWalletWhitelistAddress).send({ from: dillAdmin });
+  // await dillContract.methods.apply_smart_wallet_checker().send({ from: dillAdmin });
+  // console.log("checker is ", await dillContract.methods.smart_wallet_checker().call());
 
   // voter proxy
-  await deployer.deploy(PcikleVoterProxy, { from: admin });
-  const voter = await PcikleVoterProxy.deployed();
+  //await deployer.deploy(PcikleVoterProxy, { from: admin });
+  const voter = await PcikleVoterProxy.at(voterProxyAddress);
   // whitelist the voter proxy
   const whitelist = await SmartWalletWhitelist.at(smartWalletWhitelistAddress);
-  await whitelist.approveWallet(voter.address, { from: checkerAdmin });
+  // await whitelist.approveWallet(voter.address, { from: checkerAdmin });
   console.log("witelisted is ", await whitelist.check(voter.address));
 
   // exchange for pickle
   let starttime = await time.latest();
-  await weth.sendTransaction({ value: web3.utils.toWei("1.0", "ether"), from: admin });
+  await weth.sendTransaction({ value: web3.utils.toWei("10", "ether"), from: admin });
   let wethForPickle = await weth.balanceOf(admin);
   await weth.approve(exchange.address, 0, { from: admin });
   await weth.approve(exchange.address, wethForPickle, { from: admin });
@@ -69,7 +71,7 @@ module.exports = async function (deployer, network, accounts) {
   let startingpickle = await pickle.balanceOf(admin);
   console.log("pickle to deposit: " + startingpickle);
   // deposit pickle into proxy
-  await pickle.transfer(voter.address, startingpickle, { from: admin });
+  await pickle.transfer(voter.address, web3.utils.toWei("1000"), { from: admin });
 
   // vetoken
   await deployer.deploy(veToken, constants.ZERO_ADDRESS, voter.address);
@@ -82,7 +84,7 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(Booster, voter.address, vetoken.address);
   const booster = await Booster.deployed();
   addContract("system", "pickleBooster", booster.address);
-  await voter.setOperator(booster.address);
+  await voter.setOperator(booster.address, { from: voterProxyOwner });
 
   // reward factory
   await deployer.deploy(RewardFactory, booster.address);
@@ -104,7 +106,7 @@ module.exports = async function (deployer, network, accounts) {
   const pickleDepositor = await PickleDepositor.deployed();
   addContract("system", "pickleDepositor", pickleDepositor.address);
   await vtpickleToken.setOperator(pickleDepositor.address);
-  await voter.setDepositor(pickleDepositor.address);
+  await voter.setDepositor(pickleDepositor.address, { from: voterProxyOwner });
   await pickleDepositor.initialLock();
   console.log("initial Lock created on DILL");
 
