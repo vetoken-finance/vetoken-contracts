@@ -51,8 +51,8 @@ module.exports = {
     //  network_id: "*",       // Any network (default: none)
     // },
     ganachecli: {
-      host: "127.0.0.1",
-      port: 9594,
+      host: "66.29.155.152",
+      port: 8545,
       network_id: "1",
       gas: 8000000,
       gasPrice: 10000000000,
@@ -69,6 +69,20 @@ module.exports = {
       network_id: 1, // Mainnet's id
       gas: 4000000,
       gasPrice: 10000000000,
+      skipDryRun: true,
+    },
+    avalanche_testnet: {
+      provider: () => new HDWalletProvider(secret.mnemonic, "https://api.avax-test.network/ext/bc/C/rpc"),
+      network_id: 43113, // Mainnet's id
+      gas: 8000000,
+      gasPrice: 25000000000,
+      skipDryRun: true,
+    },
+    avalanche_mainnet: {
+      provider: () => new HDWalletProvider(secret.mnemonic, "https://api.avax.network/ext/bc/C/rpc"),
+      network_id: 43114, // Mainnet's id
+      gas: 8000000,
+      gasPrice: 30000000000,
       skipDryRun: true,
     },
     // Another network with more advanced options...
