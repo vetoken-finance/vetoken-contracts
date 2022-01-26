@@ -24,4 +24,27 @@ var addContract = function (group, name, value) {
   });
 };
 
-module.exports = addContract;
+var getContract = function () {
+  data = fs.readFileSync("contracts.json", { encoding: "utf8" });
+  contractList = {};
+  systemContracts = {};
+  return JSON.parse(data);
+  // console.log(contractList.system);
+  // return contractList[name];
+  //console.log(JSON.stringify(data));
+  //   ,
+  //   function (data) {
+  //     console.log(data);
+  //     contractList = JSON.stringify(data);
+  //     console.log(contractList);
+  //     return contractList[group][name];
+  //   },
+  //   function (err) {
+  //     if (err) {
+  //       return console.log("Error writing file: " + err);
+  //     }
+  //   }
+  // );
+};
+
+module.exports = { addContract, getContract };

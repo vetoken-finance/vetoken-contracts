@@ -50,12 +50,21 @@ module.exports = {
     //  port: 8545,            // Standard Ethereum port (default: none)
     //  network_id: "*",       // Any network (default: none)
     // },
-    ganachecli: {
+    forked: {
       host: "66.29.155.152",
       port: 8545,
       network_id: "1",
       gas: 8000000,
       gasPrice: 10000000000,
+      skipDryRun: true,
+    },
+    development: {
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "1",
+      gas: 8000000,
+      gasPrice: 10000000000,
+      skipDryRun: true,
     },
     kovan: {
       provider: () => new HDWalletProvider(secret.mnemonic, `wss://kovan.infura.io/ws/v3/${secret.infuraKey}`),
@@ -119,6 +128,7 @@ module.exports = {
   plugins: ["truffle-plugin-verify"],
   api_keys: {
     etherscan: secret.etherScanKey,
+    snowtrace: secret.snowtraceKey,
   },
 
   // Configure your compilers

@@ -1,5 +1,5 @@
 const { ether, balance, constants, time } = require("@openzeppelin/test-helpers");
-const addContract = require("./helper/addContracts");
+const { addContract } = require("./helper/addContracts");
 
 const veToken = artifacts.require("veToken");
 const PcikleVoterProxy = artifacts.require("PickleVoterProxy");
@@ -137,9 +137,4 @@ module.exports = async function (deployer, network, accounts) {
   await booster.setPoolManager(poolManager.address);
   await booster.setFactories(rFactory.address, tFactory.address);
   await booster.setFeeInfo();
-
-  // add pools
-  await poolManager.addPool("0x1BB74b5DdC1f4fC91D6f9E7906cf68bc93538e33");
-  const res = await booster.gaugeMap("0xf5bD1A4894a6ac1D786c7820bC1f36b1535147F6");
-  console.log(res);
 };
