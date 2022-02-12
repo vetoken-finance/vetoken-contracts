@@ -3,8 +3,8 @@ const { constants } = require("@openzeppelin/test-helpers");
 const addContract = require("./helper/addContracts");
 
 module.exports = async function (deployer, network, accounts) {
-  let convexVoterProxy = "0x989AEb4d175e16225E39E87d0D97A3360524AD80";
+  let pickleVoterProxy = "0x05A7Ebd3b20A2b0742FdFDe8BA79F6D22Ea9C351";
 
-  await deployer.deploy(veToken, convexVoterProxy, constants.ZERO_ADDRESS);
+  await deployer.deploy(veToken, constants.ZERO_ADDRESS , pickleVoterProxy);
   let vetoken = await veToken.deployed();
 };
