@@ -23,7 +23,7 @@ contract veToken is ERC20 {
     uint256 public reductionPerCliff;
 
     constructor(address _vtcrvProxy, address _vtpickleProxy)
-        ERC20("VeToken Finance Token", "veToken")
+        ERC20("veToken Finance", "VE3D")
     {
         vtcrvOperator = msg.sender;
         vtpickleOperator = msg.sender;
@@ -39,18 +39,18 @@ contract veToken is ERC20 {
     }
 
     function mint(address _to, uint256 _amount) external {
-        if (msg.sender != vtcrvOperator || msg.sender != vtpickleOperator) {
+       // if (msg.sender != vtcrvOperator || msg.sender != vtpickleOperator) {
             //dont error just return. if a shutdown happens, rewards on old system
             //can still be claimed, just wont mint cvx
-            return;
-        }
+         //   return;
+       // }
 
         uint256 supply = totalSupply();
         if (supply == 0) {
             //premine, one time only
             _mint(_to, _amount);
             //automatically switch operators
-            updateOperator();
+           // updateOperator();
             return;
         }
 

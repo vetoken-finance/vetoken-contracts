@@ -75,6 +75,13 @@ module.exports = {
       gasPrice: 10000000000,
       skipDryRun: true,
     },
+    rinkeby: {
+      provider: () => new HDWalletProvider(secret.mnemonic, `wss://rinkeby.infura.io/ws/v3/${secret.infuraKey}`),
+      network_id: 4, // kovan's id
+      gas: 8000000,
+      gasPrice: 10000000000,
+      skipDryRun: true,
+    },
     mainnet: {
       provider: () => new HDWalletProvider(secret.mnemonic, `wss://mainnet.infura.io/ws/v3/${secret.infuraKey}`),
       network_id: 1, // Mainnet's id

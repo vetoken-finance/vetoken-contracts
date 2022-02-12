@@ -615,7 +615,7 @@ interface IStakingHelper {
     function stake( uint _amount, address _recipient ) external;
 }
 
-contract VetokenBond is Ownable {
+contract veTokenBond is Ownable {
 
     using FixedPoint for *;
     using SafeERC20 for IERC20;
@@ -636,9 +636,9 @@ contract VetokenBond is Ownable {
 
     /* ======== STATE VARIABLES ======== */
 
-    address public immutable VET; // token given as payment for bond
+    address public immutable VE3D; // token given as payment for bond
     address public immutable principal; // token used to create bond  
-    address public immutable treasury; // mints VET when receives principal
+    address public immutable treasury; // mints VE3D when receives principal
     address public immutable VETOKENDAO; // receives profit share from bond
     address public VETOKENTreasury; // Vetoken treasury 
 
@@ -675,7 +675,7 @@ contract VetokenBond is Ownable {
 
     // Info for bond holder
     struct Bond {
-        uint payout; // VET remaining to be paid
+        uint payout; // VE3D remaining to be paid
         uint vesting; // Blocks left to vest
         uint lastBlock; // Last interaction
         uint pricePaid; // In native asset, for front end viewing
@@ -696,7 +696,7 @@ contract VetokenBond is Ownable {
     /* ======== INITIALIZATION ======== */
 
     constructor ( 
-        address _VET,
+        address _VE3D,
         address _principal,
         address _treasury,        
         address _bondCalculator,
@@ -704,7 +704,7 @@ contract VetokenBond is Ownable {
         address _VETOKENTreasury
     ) {
         require( _VET != address(0) );
-        VET = _VET;
+        VE3D = _VE3D;
         require( _principal != address(0) );
         principal = _principal;
         require( _treasury != address(0) );
@@ -850,13 +850,13 @@ contract VetokenBond is Ownable {
         uint payout = payoutFor( value ); // payout to bonder is computed
         //console.log("payout = ",payout);
 
-        require( payout >= 10000000, "Bond too small" ); // must be > 0.01 VET ( underflow protection )
+        require( payout >= 10000000, "Bond too small" ); // must be > 0.01 VE3D ( underflow protection )
         require( payout <= maxPayout(), "Bond too large"); // size protection because there is no slippage
 
         /**
             principal is transferred in
             approved and
-            deposited into the treasury, returning (_amount - profit) VET
+            deposited into the treasury, returning (_amount - profit) VE3D
          */
         IERC20( principal ).safeTransferFrom( msg.sender, address(this), _amount );
         IERC20( principal ).safeTransfer( VETOKENTreasury, tithePrincipal );
@@ -872,8 +872,8 @@ contract VetokenBond is Ownable {
         ITreasury(treasury).mintRewards(address(this),totalMint);
         
         // fee is transferred to daos
-        IERC20( VET ).safeTransfer( VETOKENDAO, fee );
-        IERC20( VET ).safeTransfer( VETOKENTreasury, titheVET );
+        IERC20( VE3D ).safeTransfer( VETOKENDAO, fee );
+        IERC20( VE3D ).safeTransfer( VETOKENTreasury, titheVET );
         
         // total debt is increased
         totalDebt = totalDebt.add( value ); 
@@ -939,13 +939,13 @@ contract VetokenBond is Ownable {
      */
     function stakeOrSend( address _recipient, bool _stake, uint _amount ) internal returns ( uint ) {
         if ( !_stake ) { // if user does not want to stake
-            IERC20( VET ).transfer( _recipient, _amount ); // send payout
+            IERC20( VE3D ).transfer( _recipient, _amount ); // send payout
         } else { // if user wants to stake
             if ( useHelper ) { // use if staking warmup is 0
-                IERC20( VET ).approve( stakingHelper, _amount );
+                IERC20( VE3D ).approve( stakingHelper, _amount );
                 IStakingHelper( stakingHelper ).stake( _amount, _recipient );
             } else {
-                IERC20( VET ).approve( staking, _amount );
+                IERC20( VE3D ).approve( staking, _amount );
                 IStaking( staking ).stake( _amount, _recipient );
             }
         }
@@ -993,7 +993,7 @@ contract VetokenBond is Ownable {
      *  @return uint
      */
     function maxPayout() public view returns ( uint ) {
-        return IERC20( VET ).totalSupply().mul( terms.maxPayout ).div( 100000 );
+        return IERC20( VE3D ).totalSupply().mul( terms.maxPayout ).div( 100000 );
     }
 
     /**
@@ -1044,11 +1044,11 @@ contract VetokenBond is Ownable {
 
 
     /**
-     *  @notice calculate current ratio of debt to VET supply
+     *  @notice calculate current ratio of debt to VE3D supply
      *  @return debtRatio_ uint
      */
     function debtRatio() public view returns ( uint debtRatio_ ) {   
-        uint supply = IERC20( VET ).totalSupply();
+        uint supply = IERC20( VE3D ).totalSupply();
         debtRatio_ = FixedPoint.fraction( 
             currentDebt().mul( 1e9 ), 
             supply
@@ -1106,7 +1106,7 @@ contract VetokenBond is Ownable {
     }
 
     /**
-     *  @notice calculate amount of VET available for claim by depositor
+     *  @notice calculate amount of VE3D available for claim by depositor
      *  @param _depositor address
      *  @return pendingPayout_ uint
      */
@@ -1127,11 +1127,11 @@ contract VetokenBond is Ownable {
     /* ======= AUXILLIARY ======= */
 
     /**
-     *  @notice allow anyone to send lost tokens (excluding principal or VET) to the VETOKENDAO
+     *  @notice allow anyone to send lost tokens (excluding principal or VE3D) to the VETOKENDAO
      *  @return bool
      */
     function recoverLostToken( address _token ) external returns ( bool ) {
-        require( _token != VET );
+        require( _token != VE3D );
         require( _token != principal );
         IERC20( _token ).safeTransfer( VETOKENDAO, IERC20( _token ).balanceOf( address(this) ) );
         return true;
