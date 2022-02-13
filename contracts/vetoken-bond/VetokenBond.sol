@@ -703,7 +703,7 @@ contract veTokenBond is Ownable {
         address _VETOKENDAO,
         address _VETOKENTreasury
     ) {
-        require( _VET != address(0) );
+        require( _VE3D != address(0) );
         VE3D = _VE3D;
         require( _principal != address(0) );
         principal = _principal;
