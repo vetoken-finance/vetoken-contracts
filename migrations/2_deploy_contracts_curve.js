@@ -1,5 +1,5 @@
 const { ether, balance, constants, time } = require("@openzeppelin/test-helpers");
-const addContract = require("./helper/addContracts");
+const { addContract } = require("./helper/addContracts");
 const veToken = artifacts.require("veToken");
 const CurveVoterProxy = artifacts.require("CurveVoterProxy");
 const RewardFactory = artifacts.require("RewardFactory");
