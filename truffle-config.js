@@ -51,7 +51,7 @@ module.exports = {
     //  port: 8545,            // Standard Ethereum port (default: none)
     //  network_id: "*",       // Any network (default: none)
     // },
-    forked: {
+    server_fork: {
       host: "66.29.155.152",
       port: 8545,
       network_id: "1",
@@ -64,7 +64,7 @@ module.exports = {
       port: 8545,
       network_id: "1",
       gas: 8000000,
-      gasPrice: 130000000000,
+      gasPrice: 100000000000,
       skipDryRun: true,
     },
     kovan: {

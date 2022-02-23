@@ -8,4 +8,4 @@
 # for Pickle
 `npm run deploy-local-pickle`
 
-`npm run test-deposit-pickle`
+`npm run deploy-pickle-pools`
