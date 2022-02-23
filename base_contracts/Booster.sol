@@ -261,7 +261,7 @@ contract Booster{
         require(gauge != address(0),"!gauge setting");
         IStaker(staker).deposit(lptoken,gauge);
 
-        //some gauges claim rewards when depositing, stash them in a seperate contract until next claim
+        //some gauges claim rewards when depositing, stash them in a separate contract until next claim
         address stash = pool.stash;
         if(stash != address(0)){
             IStash(stash).stashRewards();
@@ -309,7 +309,7 @@ contract Booster{
             IStaker(staker).withdraw(lptoken,gauge, _amount);
         }
 
-        //some gauges claim rewards when withdrawing, stash them in a seperate contract until next claim
+        //some gauges claim rewards when withdrawing, stash them in a separate contract until next claim
         //do not call if shutdown since stashes wont have access
         address stash = pool.stash;
         if(stash != address(0) && !isShutdown && !pool.shutdown){
