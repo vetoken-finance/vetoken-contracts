@@ -28,7 +28,6 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 let secret = require("./secret.json");
 
 module.exports = {
-
   contracts_directory: "./contracts/vetoken-finance",
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -65,7 +64,7 @@ module.exports = {
       port: 8545,
       network_id: "1",
       gas: 8000000,
-      gasPrice: 10000000000,
+      gasPrice: 130000000000,
       skipDryRun: true,
     },
     kovan: {
@@ -85,8 +84,8 @@ module.exports = {
     mainnet: {
       provider: () => new HDWalletProvider(secret.mnemonic, `wss://mainnet.infura.io/ws/v3/${secret.infuraKey}`),
       network_id: 1, // Mainnet's id
-      gas: 4000000,
-      gasPrice: 10000000000,
+      gas: 8000000,
+      gasPrice: 50000000000,
       skipDryRun: true,
     },
     avalanche_testnet: {

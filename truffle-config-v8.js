@@ -28,7 +28,6 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 let secret = require("./secret.json");
 
 module.exports = {
-
   contracts_directory: "./contracts/presale",
   /**
    * Networks define how you connect to your ethereum client and let you set the

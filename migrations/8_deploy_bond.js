@@ -8,14 +8,13 @@ module.exports = async function (deployer, network, accounts) {
   const vetokenTreasury = "0x9e3B5c81336f17B3e484f6805815f21782290EEF";
   let pickleVoterProxy = "0x05A7Ebd3b20A2b0742FdFDe8BA79F6D22Ea9C351";
 
-  
   // vetoken
   await deployer.deploy(veToken, constants.ZERO_ADDRESS, pickleVoterProxy);
   let vetoken = await veToken.deployed();
 
-   // bondingCalculator
-   await deployer.deploy(LPBondingCalculator, vetoken.address);
-   let bondingCalculator = await LPBondingCalculator.deployed();
+  // bondingCalculator
+  await deployer.deploy(LPBondingCalculator, vetoken.address);
+  let bondingCalculator = await LPBondingCalculator.deployed();
 
   // treasury
   await deployer.deploy(
@@ -45,5 +44,4 @@ module.exports = async function (deployer, network, accounts) {
   );
 
   //initilize bond
-  await
 };
