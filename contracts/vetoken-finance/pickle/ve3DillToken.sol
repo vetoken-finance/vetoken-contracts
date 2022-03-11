@@ -8,14 +8,14 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract vtDillToken is ERC20 {
+contract ve3DillToken is ERC20 {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
     address public operator;
 
-    constructor() ERC20("VeToken Finance DILL", "vtDILL") {
+    constructor() ERC20("VeToken Finance DILL", "ve3Dill") {
         operator = msg.sender;
     }
 
