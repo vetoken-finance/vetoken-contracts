@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../Interfaces/IveTokenMinter.sol";
 
 contract PickleBooster {
     using SafeERC20 for IERC20;
@@ -13,8 +14,7 @@ contract PickleBooster {
     using SafeMath for uint256;
 
     address public constant pickle = address(0x429881672B9AE42b8EbA0E26cD9C73711b891Ca5);
-    address public constant registry = address(0x0000000022D53366457F9d5E68Ec105046FC4383);
-    uint256 public constant distributionAddressId = 4;
+    address public constant feeDistro = address(0x74C6CadE3eF61d64dcc9b97490d9FbB231e4BdCc);
     address public constant voteOwnership = address(0xE478de485ad2fe566d49342Cbd03E49ed7DB3356);
     address public constant voteParameter = address(0xBCfF8B0b9419b9A88c44546519b1e909cF330399);
 
@@ -38,7 +38,6 @@ contract PickleBooster {
     address public stakerRewards; //vetoken rewards
     address public lockRewards; //vtdill rewards(pickle)
     address public lockFees; //vtdill vepickle fees
-    address public feeDistro;
     address public feeToken;
 
     bool public isShutdown;
@@ -147,7 +146,6 @@ contract PickleBooster {
     function setFeeInfo() external {
         require(msg.sender == feeManager, "!auth");
 
-        feeDistro = IRegistry(registry).get_address(distributionAddressId);
         address _feeToken = IFeeDistro(feeDistro).token();
         if (feeToken != _feeToken) {
             //create a new reward contract for the new token
@@ -289,13 +287,13 @@ contract PickleBooster {
         address token = pool.token;
         if (_stake) {
             //mint here and send to rewards on user behalf
-            ITokenMinter(token).mint(address(this), _amount);
+            IveTokenMinter(token).mint(address(this), _amount);
             address rewardContract = pool.pickleRewards;
             IERC20(token).safeApprove(rewardContract, _amount);
             IRewards(rewardContract).stakeFor(msg.sender, _amount);
         } else {
             //add user balance directly
-            ITokenMinter(token).mint(msg.sender, _amount);
+            IveTokenMinter(token).mint(msg.sender, _amount);
         }
 
         emit Deposited(msg.sender, _pid, _amount);
@@ -323,7 +321,7 @@ contract PickleBooster {
 
         //remove lp balance
         address token = pool.token;
-        ITokenMinter(token).burn(_from, _amount);
+        IveTokenMinter(token).burn(_from, _amount);
 
         //pull from gauge if not shutdown
         // if shutdown tokens will be in this contract
@@ -462,9 +460,13 @@ contract PickleBooster {
     ) external returns (bool) {
         address rewardContract = poolInfo[_pid].pickleRewards;
         require(msg.sender == rewardContract || msg.sender == lockRewards, "!auth");
-
+        IveTokenMinter veTokenMinter = IveTokenMinter(minter);
+        //calc the amount of veAssetEarned
+        uint256 _veAssetEarned = _amount.mul(veTokenMinter.veAssetWeights(address(this))).div(
+            veTokenMinter.totalWeight()
+        );
         //mint reward tokens
-        ITokenMinter(minter).mint(_address, _amount);
+        IveTokenMinter(minter).mint(_address, _veAssetEarned);
 
         return true;
     }

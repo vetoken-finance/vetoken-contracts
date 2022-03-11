@@ -57,7 +57,7 @@ contract PickleVtRewardPool {
     address public immutable operator;
     address public immutable pickleDeposits;
     address public immutable vtDillRewards;
-    IERC20 public immutable vtDillToken;
+    IERC20 public immutable ve3DillToken;
     address public immutable rewardManager;
 
     uint256 public periodFinish = 0;
@@ -85,7 +85,7 @@ contract PickleVtRewardPool {
         address rewardToken_,
         address pickleDeposits_,
         address vtDillRewards_,
-        address vtDillToken_,
+        address ve3DillToken_,
         address operator_,
         address rewardManager_
     ) {
@@ -95,7 +95,7 @@ contract PickleVtRewardPool {
         rewardManager = rewardManager_;
         pickleDeposits = pickleDeposits_;
         vtDillRewards = vtDillRewards_;
-        vtDillToken = IERC20(vtDillToken_);
+        ve3DillToken = IERC20(ve3DillToken_);
     }
 
     function totalSupply() public view returns (uint256) {
@@ -246,13 +246,13 @@ contract PickleVtRewardPool {
             rewardToken.safeApprove(pickleDeposits, reward);
             IKeyTokDeposit(pickleDeposits).deposit(reward, false);
 
-            uint256 vtDillBalance = vtDillToken.balanceOf(address(this));
+            uint256 vtDillBalance = ve3DillToken.balanceOf(address(this));
             if (_stake) {
-                IERC20(vtDillToken).safeApprove(vtDillRewards, 0);
-                IERC20(vtDillToken).safeApprove(vtDillRewards, vtDillBalance);
+                IERC20(ve3DillToken).safeApprove(vtDillRewards, 0);
+                IERC20(ve3DillToken).safeApprove(vtDillRewards, vtDillBalance);
                 IRewards(vtDillRewards).stakeFor(_account, vtDillBalance);
             } else {
-                vtDillToken.safeTransfer(_account, vtDillBalance);
+                ve3DillToken.safeTransfer(_account, vtDillBalance);
             }
             emit RewardPaid(_account, vtDillBalance);
         }

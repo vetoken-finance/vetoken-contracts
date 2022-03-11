@@ -1,11 +1,10 @@
 # vetoken-contracts
 
-`npm run fork-mainnet`
-
 # for Curve
-`npm run deploy-local-curve`
+[contracts/vetoken-finance/curve](contracts/vetoken-finance/curve)
 
 # for Pickle
-`npm run deploy-local-pickle`
+[contracts/vetoken-finance/pickle](contracts/vetoken-finance/pickle)
 
-`npm run deploy-pickle-pools`
+# Bond
+[contracts/vetoken-bond](contracts/vetoken-bond)
